@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.27",
+	"Category": "Blabla",
+	"Description": "Blabla",
+	"Modules": [
+		{
+			"Name": "Pole3D",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
