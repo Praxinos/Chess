@@ -3,12 +3,8 @@
 
 AChessPlayer::AChessPlayer()
 {
-    PrimaryActorTick.bCanEverTick = true;
-}
+    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
-
-void AChessPlayer::BeginPlay()
-{
-    Super::BeginPlay();
-    ChessController = Cast<AChessController>(GetController());
+    Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerPointOfView"));
+    Camera->SetupAttachment(RootComponent, "");
 }

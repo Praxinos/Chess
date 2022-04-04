@@ -1,20 +1,15 @@
 #include "ChessController.h"
 
-#include "Pieces/Piece.h"
 #include "ChessPlayer.h"
+#include "Kismet/GameplayStatics.h"
+#include "Pole3DGameModeBase.h"
+#include "InteractiveTile.h"
 
 AChessController::AChessController()
 {
     bShowMouseCursor = true;
-}
-
-void AChessController::BeginPlay()
-{
-    PlayerTwo = GetWorld()->SpawnActor<AChessPlayer>(FVector(1600.0, 3700.0, 1500), FRotator(20.0f, -90.0f, 0.0f));
-    PlayerTwo->bIsWhite = false;
-    PlayerOne = GetWorld()->SpawnActor<AChessPlayer>(FVector(1600.0, -500.0, 1500), FRotator(20.0f, 90.0f, 0.0f));
-    PlayerOne->bIsWhite = true;
-    CurrentPlayer = PlayerOne;
+    SelectedPiece = nullptr;
+    SelectedTile = nullptr;
 }
 
 void AChessController::SetupInputComponent()
@@ -24,24 +19,65 @@ void AChessController::SetupInputComponent()
     // Bind actions for mouse events
     InputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &AChessController::OnLeftMouseClick);
     InputComponent->BindAction("RightMouseClick", IE_Pressed, this, &AChessController::OnRightMouseClick);
-
-    UE_LOG(LogTemp, Display, TEXT("Setup"));
 }
 
 void AChessController::OnLeftMouseClick()
 {
-    UE_LOG(LogTemp, Display, TEXT("HIT"));
-
     FHitResult TraceResult(ForceInit);
     GetHitResultUnderCursor(ECollisionChannel::ECC_WorldDynamic, false, TraceResult);
 
-    if (TraceResult.GetActor() != nullptr)
+    if (SelectedPiece)
     {
-        UE_LOG(LogTemp, Display, TEXT("%s"), *TraceResult.GetActor()->GetFName().ToString())
+        SelectedPiece->RemoveHighlight();
+        SelectedPiece = nullptr;
     }
+
+    if ( TraceResult.GetActor() != nullptr && TraceResult.GetActor()->IsA( APiece::StaticClass()) )
+    {
+        SelectedPiece = Cast<APiece>(TraceResult.GetActor());
+        if( SelectedPiece->bIsWhite == CurrentPlayer->bIsWhite )
+            SelectedPiece->Highlight();
+        else
+            SelectedPiece = nullptr;
+    }
+    OnSelectedPieceDelegate().ExecuteIfBound( SelectedPiece );
 }
 
 void AChessController::OnRightMouseClick()
 {
+    FHitResult TraceResult(ForceInit);
+    GetHitResultUnderCursor(ECollisionChannel::ECC_WorldDynamic, false, TraceResult);
 
+    if (TraceResult.GetActor() != nullptr && TraceResult.GetActor()->IsA( AInteractiveTile::StaticClass()) )
+    {
+        SelectedTile = Cast<AInteractiveTile>(TraceResult.GetActor());
+
+        if (SelectedPiece && SelectedTile->IsSelected )
+        {
+            APiece* pieceOnTile = SelectedTile->GetPieceOnTile();
+            if( pieceOnTile )
+                pieceOnTile->Destroy();
+
+            SelectedPiece->SetActorLocation(FVector(SelectedTile->GetActorLocation().X, SelectedTile->GetActorLocation().Y, SelectedPiece->GetActorLocation().Z));
+            SelectedPiece->bFirstMove = false;
+            SelectedPiece->RemoveHighlight();
+            SelectedPiece = nullptr;
+            TurnEndDelegate.ExecuteIfBound();
+        }
+        else
+        {
+            SelectedTile = nullptr;
+        }
+    }
+}
+
+AChessController::FOnTurnEndDelegate& AChessController::OnTurnEndDelegate()
+{
+    return TurnEndDelegate;
+}
+
+
+AChessController::FOnSelectedPieceDelegate& AChessController::OnSelectedPieceDelegate()
+{
+    return SelectedPieceDelegate;
 }

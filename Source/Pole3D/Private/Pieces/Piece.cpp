@@ -1,40 +1,68 @@
 #include "Pieces/Piece.h"
+#include "InteractiveTile.h"
 
 APiece::APiece()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRootComponent"));
 	RootComponent->bVisualizeComponent = true;
 
-	//ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Pawn"));
-	//ConstructorHelpers::FObjectFinder<UMaterialInterface> materialFinder(TEXT("/Game/StarterContent/Materials/M_Basic_Wall"));
-
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	//StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
-	//StaticMeshComponent->SetMaterial(0, materialFinder.Object);
 	StaticMeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+    StaticMeshComponent->SetGenerateOverlapEvents(true);
+    StaticMeshComponent->SetCollisionProfileName(TEXT("Piece"));
+    //StaticMeshComponent->SetSimulatePhysics(true);
 }
 
 void
-APiece::SetColor(EChessColor iColor)
+APiece::SetColor(bool iIsWhite)
 {
-	Color = iColor;
+	bIsWhite = iIsWhite;
 
-	
-	switch (iColor)
+	if (bIsWhite)
 	{
-		default:
-		case EChessColor::White:
-		{
-			UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Basic_Wall"));
-			StaticMeshComponent->SetMaterial(0, material);
-		}
-		break;
-
-		case EChessColor::Black:
-		{
-			UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Wood_Walnut"));
-			StaticMeshComponent->SetMaterial(0, material);
-		}
-		break;
+        UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Basic_Wall"));
+        StaticMeshComponent->SetMaterial(0, material);
 	}
+	else
+	{
+        UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Wood_Walnut"));
+        StaticMeshComponent->SetMaterial(0, material);
+	}
+}
+
+void APiece::Highlight()
+{
+    UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/Materials/SelectMaterial"));
+    StaticMeshComponent->SetMaterial(0, material);
+}
+
+void APiece::RemoveHighlight()
+{
+    if (bIsWhite)
+    {
+        UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Basic_Wall"));
+        StaticMeshComponent->SetMaterial(0, material);
+    }
+    else
+    {
+        UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/StarterContent/Materials/M_Wood_Walnut"));
+        StaticMeshComponent->SetMaterial(0, material);
+    }
+}
+
+AInteractiveTile* APiece::GetTileOfPiece() const
+{
+    TArray<AActor*> overlapedActors;
+    this->GetOverlappingActors(overlapedActors, AInteractiveTile::StaticClass());
+
+    if (overlapedActors.Num() > 0)
+        return Cast<AInteractiveTile>(overlapedActors[0]);
+
+    return nullptr;
+}
+
+TArray<FMove> APiece::GetPiecePossibleMoves()
+{
+    return TArray<FMove>();
 }

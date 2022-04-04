@@ -11,4 +11,6 @@ class AChessBishop : public APiece
 
 public:
     AChessBishop();
+
+    virtual TArray<FMove> GetPiecePossibleMoves() override;
 };

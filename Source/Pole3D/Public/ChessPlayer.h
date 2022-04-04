@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Camera/CameraComponent.h"
 
 #include "ChessPlayer.generated.h"
 
@@ -14,13 +15,10 @@ class AChessPlayer : public APawn
 public:
     AChessPlayer();
 
-protected:
-    virtual void BeginPlay() override;
-
 public:
     UPROPERTY()
-    AChessController* ChessController;
+    bool bIsWhite;
 
     UPROPERTY()
-    bool bIsWhite;
+    UCameraComponent* Camera;
 };

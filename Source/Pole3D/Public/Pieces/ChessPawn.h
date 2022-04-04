@@ -11,4 +11,7 @@ class AChessPawn : public APiece
 
 public:
     AChessPawn();
+
+    virtual TArray<FMove> GetPiecePossibleMoves() override;
+
 };

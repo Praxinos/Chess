@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 
-#include "Pieces/Piece.h"
-
 #include "Board.generated.h"
+
+class AInteractiveTile;
 
 UCLASS(MinimalAPI, Blueprintable)
 class ABoard : public AActor
@@ -19,13 +19,13 @@ public:
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Width = 8;
+    int Width;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Height = 8;
+    int Height;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Spacing = 64;
+    int Spacing;
 
     UPROPERTY()
     UInstancedStaticMeshComponent* WhiteTileInstancedStaticMesh;
@@ -39,6 +39,5 @@ public:
     UPROPERTY(EditAnywhere)
     UStaticMesh* BlackTileMesh;
 
-    UPROPERTY()
-    TArray<APiece*> Tiles;
+    TMap<FIntPoint, AInteractiveTile*> Tiles;
 };

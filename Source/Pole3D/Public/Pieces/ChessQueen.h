@@ -11,4 +11,6 @@ class AChessQueen : public APiece
 
 public:
     AChessQueen();
+
+    virtual TArray<FMove> GetPiecePossibleMoves() override;
 };
