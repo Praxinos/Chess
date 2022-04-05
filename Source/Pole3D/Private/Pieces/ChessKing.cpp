@@ -10,14 +10,14 @@ TArray<FMove> AChessKing::GetPiecePossibleMoves()
 {
     TArray<FMove> possibleMoves;
 
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(0, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(0, -1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(1, 0), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(-1, 0), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(1, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(1, -1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(-1, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kBlockedByPieces, kFixedLength, FIntPoint(-1, -1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, 1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, -1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, 0), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, 0), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, 1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, -1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, 1), 1));
+    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, -1), 1));
 
     return possibleMoves;
 }

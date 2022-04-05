@@ -42,9 +42,12 @@ private:
 
 public:
 	/** Utility functions */
-	void SwitchPlayer();
+	void TurnEnd();
 
 	void CheckAndHighlightPossibleMovesForPiece( APiece* iPiece );
+
+	//Check if Tile is dangerous for said piece. Simulate the fact that we move iPiece to iTile and check if this move is dangerous
+	bool IsTileDangerousForPiece( APiece* iPiece, AInteractiveTile* iTile );
 
 	void RemoveHighlightBoard();
 

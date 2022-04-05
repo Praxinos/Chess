@@ -9,6 +9,12 @@ enum ETakeCondition
     kMustTakePiece
 };
 
+enum ETakenCondition
+{
+    kCantBeTaken,
+    kCanBeTaken
+};
+
 enum EMoveCondition
 {
     kJumpOverPieces,
@@ -23,8 +29,9 @@ enum EMoveLengthCondition
 
 struct FMove
 {
-    FMove(ETakeCondition iTakeCondition, EMoveCondition iMoveCondition, EMoveLengthCondition iMoveLengthCondition, FIntPoint iMoveDirection, uint32 iMoveLength)
+    FMove(ETakeCondition iTakeCondition, ETakenCondition iTakenCondition, EMoveCondition iMoveCondition, EMoveLengthCondition iMoveLengthCondition, FIntPoint iMoveDirection, uint32 iMoveLength)
     : TakeCondition( iTakeCondition ),
+      TakenCondition( iTakenCondition ),
       MoveCondition( iMoveCondition ),
       MoveLengthCondition( iMoveLengthCondition ),
       MoveUnitVector( iMoveDirection ),
@@ -33,6 +40,7 @@ struct FMove
     }
 
     ETakeCondition TakeCondition;
+    ETakenCondition TakenCondition;
     EMoveCondition MoveCondition;
     EMoveLengthCondition MoveLengthCondition;
 

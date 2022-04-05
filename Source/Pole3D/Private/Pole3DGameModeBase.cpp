@@ -23,7 +23,7 @@ void
 APole3DGameModeBase::BeginPlay()
 {
 	PlayerController = GetWorld()->GetFirstPlayerController<AChessController>();
-	PlayerController->OnTurnEndDelegate().BindUObject(this, &APole3DGameModeBase::SwitchPlayer);
+	PlayerController->OnTurnEndDelegate().BindUObject(this, &APole3DGameModeBase::TurnEnd);
     PlayerController->OnSelectedPieceDelegate().BindUObject(this, &APole3DGameModeBase::CheckAndHighlightPossibleMovesForPiece);
 
 	CreateBoard();
@@ -100,9 +100,12 @@ void APole3DGameModeBase::CreatePlayers()
 	PlayerController->Possess( PlayerOne );
 }
 
-void APole3DGameModeBase::SwitchPlayer()
+void APole3DGameModeBase::TurnEnd()
 {
+    //Remove highlights on the board
 	RemoveHighlightBoard();
+
+    //Switch Player
 	PlayerController->UnPossess();
 
 	if( PlayerController->CurrentPlayer == PlayerOne )
@@ -115,6 +118,7 @@ void APole3DGameModeBase::SwitchPlayer()
 		PlayerController->Possess( PlayerOne );
 		PlayerController->CurrentPlayer = PlayerOne;
 	}
+
 }
 
 void APole3DGameModeBase::CheckAndHighlightPossibleMovesForPiece( APiece* iPiece )
@@ -333,26 +337,62 @@ void APole3DGameModeBase::CheckAndHighlightPossibleMovesForPiece( APiece* iPiece
                 {
                 case kCanTakePiece:
                 {
-                    for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                    switch (possibleMoves[i].TakenCondition)
                     {
-                        FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
-
-                        if (Board->Tiles.Contains(movePosition))
+                    case kCanBeTaken:
+                    {
+                        for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
                         {
-                            APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
-                            if (pieceOnTile == nullptr && j == possibleMoves[i].MoveLength )
+                            FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                            if (Board->Tiles.Contains(movePosition))
                             {
-                                Board->Tiles[movePosition]->Highlight();
-                            }
-                            else if (pieceOnTile != nullptr)
-                            {
-                                if (j != possibleMoves[i].MoveLength)
-                                    break;
-                                
-                                if (isCurrentPlayerWhite != pieceOnTile->bIsWhite)
+                                APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                if (pieceOnTile == nullptr && j == possibleMoves[i].MoveLength )
+                                {
                                     Board->Tiles[movePosition]->Highlight();
+                                }
+                                else if (pieceOnTile != nullptr)
+                                {
+                                    if (j != possibleMoves[i].MoveLength)
+                                        break;
+                                
+                                    if (isCurrentPlayerWhite != pieceOnTile->bIsWhite)
+                                        Board->Tiles[movePosition]->Highlight();
+                                }
                             }
                         }
+                    }
+                    break;
+                    case kCantBeTaken:
+                    {
+                        for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                        {
+                            FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                            if (Board->Tiles.Contains(movePosition))
+                            {
+                                if( IsTileDangerousForPiece( iPiece, Board->Tiles[movePosition] ) )
+                                    continue;
+
+                                APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                if (pieceOnTile == nullptr && j == possibleMoves[i].MoveLength)
+                                {
+                                    Board->Tiles[movePosition]->Highlight();
+                                }
+                                else if (pieceOnTile != nullptr)
+                                {
+                                    if (j != possibleMoves[i].MoveLength)
+                                        break;
+
+                                    if (isCurrentPlayerWhite != pieceOnTile->bIsWhite)
+                                        Board->Tiles[movePosition]->Highlight();
+                                }
+                            }
+                        }
+                    }
+                    default:
+                    {}
                     }
                 }
                 break;
@@ -415,6 +455,238 @@ void APole3DGameModeBase::CheckAndHighlightPossibleMovesForPiece( APiece* iPiece
             {}
         }
 	}
+}
+
+bool APole3DGameModeBase::IsTileDangerousForPiece(APiece* iPiece, AInteractiveTile* iTile)
+{
+    if( !iPiece || !iTile )
+        return false;
+
+    bool isPieceWhite = iPiece->bIsWhite;
+
+    //Parcourt toutes les tiles, si on tombe sur iPiece ou iTile, on simule le fait que la piece soit sur iTile
+    for (auto it = Board->Tiles.CreateConstIterator(); it; ++it )
+    {
+        APiece* pieceOnControlTile = it->Value->GetPieceOnTile();
+
+        if( pieceOnControlTile == iPiece || it->Value == iTile )
+            continue;
+
+
+        if (pieceOnControlTile && pieceOnControlTile->bIsWhite != isPieceWhite)
+        {
+            FIntPoint piecePosition = *Board->Tiles.FindKey(it->Value);
+            TArray<FMove> possibleMoves = pieceOnControlTile->GetPiecePossibleMoves();
+            for (int i = 0; i < possibleMoves.Num(); i++)
+            {
+                switch (possibleMoves[i].MoveLengthCondition)
+                {
+                case kEqualOrUnderLength:
+                    switch (possibleMoves[i].MoveCondition)
+                    {
+                    case kJumpOverPieces:
+                    {
+                        switch (possibleMoves[i].TakeCondition)
+                        {
+                        case kCanTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    if( Board->Tiles[movePosition] == iTile )
+                                        return true;
+                                }
+                            }
+                        }
+                        break;
+                        case kMustTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    if (Board->Tiles[movePosition] == iTile)
+                                        return true;
+                                }
+                            }
+                        }
+                        break;
+                        default:
+                        {}
+                        }
+                    }
+                    break;
+                    case kBlockedByPieces:
+                    {
+                        switch (possibleMoves[i].TakeCondition)
+                        {
+                        case kCanTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    if (Board->Tiles[movePosition] == iTile)
+                                        return true;
+
+                                    APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                    if (pieceOnTile != nullptr && pieceOnTile != iPiece)
+                                    {
+                                        if (isPieceWhite == pieceOnTile->bIsWhite)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        case kMustTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    if (Board->Tiles[movePosition] == iTile)
+                                        return true;
+
+                                    APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                    if (pieceOnTile != nullptr && pieceOnTile != iPiece)
+                                    {
+                                        if (isPieceWhite == pieceOnTile->bIsWhite)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        default:
+                        {}
+                        }
+                    }
+                    break;
+                    default:
+                    {}
+                    }
+                    break;
+                case kFixedLength:
+                    switch (possibleMoves[i].MoveCondition)
+                    {
+                    case kJumpOverPieces:
+                    {
+                        switch (possibleMoves[i].TakeCondition)
+                        {
+                        case kCanTakePiece:
+                        {
+                            FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * possibleMoves[i].MoveLength;
+
+                            if (Board->Tiles.Contains(movePosition))
+                            {
+                                if (Board->Tiles[movePosition] == iTile)
+                                    return true;
+                            }
+                        }
+                        break;
+                        case kMustTakePiece:
+                        {
+                            FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * possibleMoves[i].MoveLength;
+
+                            if (Board->Tiles.Contains(movePosition))
+                            {
+                                if (Board->Tiles[movePosition] == iTile)
+                                    return true;
+                            }
+                        }
+                        break;
+                        default:
+                        {}
+                        }
+                    }
+                    break;
+                    case kBlockedByPieces:
+                    {
+                        switch (possibleMoves[i].TakeCondition)
+                        {
+                        case kCanTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                    if (pieceOnTile == nullptr && j == possibleMoves[i].MoveLength )
+                                    {
+                                        if (Board->Tiles[movePosition] == iTile)
+                                            return true;
+                                    }
+                                    else if (pieceOnTile != nullptr && pieceOnTile != iPiece)
+                                    {
+                                        if (j != possibleMoves[i].MoveLength)
+                                            break;
+
+                                        if (Board->Tiles[movePosition] == iTile)
+                                            return true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        case kMustTakePiece:
+                        {
+                            for (uint32 j = 1; j <= possibleMoves[i].MoveLength; j++)
+                            {
+                                FIntPoint movePosition = piecePosition + possibleMoves[i].MoveUnitVector * j;
+
+                                if (Board->Tiles.Contains(movePosition))
+                                {
+                                    APiece* pieceOnTile = Board->Tiles[movePosition]->GetPieceOnTile();
+                                    if (pieceOnTile == nullptr && j == possibleMoves[i].MoveLength)
+                                    {
+                                        if (Board->Tiles[movePosition] == iTile)
+                                            return true;
+                                    }
+                                    else if (pieceOnTile != nullptr && pieceOnTile != iPiece)
+                                    {
+                                        if (j != possibleMoves[i].MoveLength)
+                                            break;
+
+                                        if (Board->Tiles[movePosition] == iTile)
+                                            return true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        default:
+                        {}
+                        }
+                    }
+                    break;
+                    default:
+                    {}
+                    }
+                    break;
+                default:
+                {}
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void APole3DGameModeBase::RemoveHighlightBoard()
