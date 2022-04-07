@@ -1,50 +1,49 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 
 #include "InteractiveTile.h"
 #include "Pieces/Piece.h"
-#include <Components/BoxComponent.h>
 
+// Sets default values
 AInteractiveTile::AInteractiveTile()
 {
-    USceneComponent* component = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRootComponent"));
-    SetRootComponent(component);
-	RootComponent->bVisualizeComponent = true;
+    RootComponent = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
+    RootComponent->bVisualizeComponent = true;
 
-    StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-    StaticMeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    TileMesh = CreateDefaultSubobject<UStaticMeshComponent>("TileMesh");
+    TileMesh->AttachToComponent( RootComponent, FAttachmentTransformRules::KeepRelativeTransform );
 
-    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/TileMesh"));
-    StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMesh( TEXT("/Game/Meshes/Tile"));
+    TileMesh->SetStaticMesh( staticMesh.Object );
 
-    StaticMeshComponent->SetGenerateOverlapEvents(true);
-    StaticMeshComponent->SetCollisionProfileName(TEXT("Piece"));
+    TileMesh->SetCollisionProfileName( TEXT("Chess"));
 
     IsSelected = false;
 }
 
-void AInteractiveTile::Highlight()
+void AInteractiveTile::Select()
 {
     UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/Materials/SelectMaterial"));
-    StaticMeshComponent->SetMaterial(0, material);
+    TileMesh->SetMaterial(0, material);
 
     IsSelected = true;
 }
 
-void AInteractiveTile::RemoveHighlight()
+void AInteractiveTile::Unselect()
 {
     UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/Materials/TransparentMaterial"));
-    StaticMeshComponent->SetMaterial(0, material);
+    TileMesh->SetMaterial(0, material);
 
     IsSelected = false;
 }
 
 APiece* AInteractiveTile::GetPieceOnTile()
 {
-    TArray<AActor*> overlapedActors;    
-    this->GetOverlappingActors( overlapedActors, APiece::StaticClass() );
+    TArray<AActor*> overlappedActors;
+    GetOverlappingActors( overlappedActors, APiece::StaticClass() );
 
-    if( overlapedActors.Num() > 0 )
-        return Cast<APiece>( overlapedActors[0] );
+    if( overlappedActors.Num() > 0 )
+        return Cast<APiece>(overlappedActors[0]);
 
     return nullptr;
 }
-

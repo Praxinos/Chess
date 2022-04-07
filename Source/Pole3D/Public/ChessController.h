@@ -1,51 +1,53 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Pieces/Piece.h"
-
+#include "GameFramework/PlayerController.h"
+#include "InteractiveTile.h"
 #include "ChessController.generated.h"
 
+class APiece;
 class AChessPlayer;
-class AInteractiveTile;
-class AInteractiveBoard;
 
-UCLASS(Blueprintable)
-class AChessController : public APlayerController
+/**
+ * 
+ */
+UCLASS()
+class POLE3D_API AChessController : public APlayerController
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
     DECLARE_DELEGATE( FOnTurnEndDelegate )
-    DECLARE_DELEGATE_OneParam( FOnSelectedPieceDelegate, APiece* )
+	DECLARE_DELEGATE_RetVal_OneParam( TArray<AInteractiveTile*>, FOnSelectedPieceDelegate, APiece* )
+
 
 public:
-    AChessController();
+	AChessController();
+	virtual void SetupInputComponent() override;
 
-    virtual void SetupInputComponent() override;
+	void OnLeftMouseClick();
+	void OnRightMouseClick();
 
-    //Select Piece
-    UFUNCTION()
-    void OnLeftMouseClick();
-    
-    //Select Tile to move piece to
-    UFUNCTION()
-    void OnRightMouseClick();
+	void UnselectPiece();
+	void UnselectTile();
 
 public:
-    UPROPERTY()
-    AChessPlayer* CurrentPlayer;
+	UPROPERTY()
+	AChessPlayer* CurrentPlayer;
 
-    UPROPERTY()
-    APiece* SelectedPiece;
-
+	UPROPERTY()
+	APiece* SelectedPiece;
+	
     UPROPERTY()
     AInteractiveTile* SelectedTile;
 
 public:
-    FOnTurnEndDelegate& OnTurnEndDelegate();
-    FOnSelectedPieceDelegate& OnSelectedPieceDelegate();
+	FOnTurnEndDelegate& OnTurnEndDelegate();
+	FOnSelectedPieceDelegate& OnSelectedPieceDelegate();
 
 private:
-    FOnTurnEndDelegate TurnEndDelegate;
-    FOnSelectedPieceDelegate SelectedPieceDelegate;
+	FOnTurnEndDelegate TurnEndDelegate;
+	FOnSelectedPieceDelegate SelectedPieceDelegate;
 };

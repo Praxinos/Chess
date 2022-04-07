@@ -2,23 +2,23 @@
 
 AChessKnight::AChessKnight()
 {
-	ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Knight"));
-	StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Knight"));
+    PieceMesh->SetStaticMesh(staticMeshFinder.Object);
 }
 
-TArray<FMove> AChessKnight::GetPiecePossibleMoves()
+TArray<FMove> AChessKnight::GetAvailableMoves()
 {
-    TArray<FMove> possibleMoves;
+    TArray<FMove> moves;
 
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(2, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(2, -1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(-2, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(-2, -1), 1));
+    moves.Add(FMove(FIntPoint(1, 2), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(1, -2), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(-1, 2), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(-1, -2), 1, kCanKill, kJump, kFixed));
 
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(1, 2), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(-1, 2), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(1, -2), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kJumpOverPieces, kFixedLength, FIntPoint(-1, -2), 1));
+    moves.Add(FMove(FIntPoint(2, 1), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(2, -1), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(-2, 1), 1, kCanKill, kJump, kFixed));
+    moves.Add(FMove(FIntPoint(-2, -1), 1, kCanKill, kJump, kFixed));
 
-    return possibleMoves;
+    return moves;
 }

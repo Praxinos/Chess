@@ -2,22 +2,23 @@
 
 AChessKing::AChessKing()
 {
-	ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/King"));
-	StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/King"));
+    PieceMesh->SetStaticMesh(staticMeshFinder.Object);
 }
 
-TArray<FMove> AChessKing::GetPiecePossibleMoves()
+TArray<FMove> AChessKing::GetAvailableMoves()
 {
-    TArray<FMove> possibleMoves;
+    TArray<FMove> moves;
 
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, -1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, 0), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, 0), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, -1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, 1), 1));
-    possibleMoves.Add(FMove(kCanTakePiece, kCantBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, -1), 1));
+    moves.Add(FMove(FIntPoint(0, -1), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(0, 1), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(1, 0), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(-1, 0), 1, kCanKill, kBlocked, kFixed));
 
-    return possibleMoves;
+    moves.Add(FMove(FIntPoint(1, 1), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(1, -1), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(-1, 1), 1, kCanKill, kBlocked, kFixed));
+    moves.Add(FMove(FIntPoint(-1, -1), 1, kCanKill, kBlocked, kFixed));
+
+    return moves;
 }

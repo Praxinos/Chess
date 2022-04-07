@@ -2,24 +2,23 @@
 
 AChessQueen::AChessQueen()
 {
-	ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Queen"));
-	StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Queen"));
+    PieceMesh->SetStaticMesh(staticMeshFinder.Object);
 }
 
-TArray<FMove> AChessQueen::GetPiecePossibleMoves()
+TArray<FMove> AChessQueen::GetAvailableMoves()
 {
-    TArray<FMove> possibleMoves;
+    TArray<FMove> moves;
 
-    //TODO: Change 8 by size of Board
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(0, 1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(0, -1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(1, 0), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(-1, 0), 8));
+    moves.Add(FMove(FIntPoint(0, -1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(0, 1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(1, 0), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(-1, 0), 0, kCanKill, kBlocked, kExtend));
 
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(1, 1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(1, -1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(-1, 1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(-1, -1), 8));
+    moves.Add(FMove(FIntPoint(1, 1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(1, -1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(-1, 1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(-1, -1), 0, kCanKill, kBlocked, kExtend));
 
-    return possibleMoves;
+    return moves;
 }

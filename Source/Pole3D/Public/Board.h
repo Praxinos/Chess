@@ -1,43 +1,46 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "InteractiveTile.h"
 
 #include "Board.generated.h"
 
-class AInteractiveTile;
-
-UCLASS(MinimalAPI, Blueprintable)
-class ABoard : public AActor
+UCLASS()
+class POLE3D_API ABoard : public AActor
 {
-    GENERATED_BODY()
-    ABoard();
+	GENERATED_BODY()
+	
+public:	
+	ABoard();
+
+	void Init( int iSizeX, int iSizeY, int iAssetSize, UStaticMesh* iWhiteTileMesh, UStaticMesh* iBlackTileMesh );
+
+	void GenerateBoard();
 
 public:
-    void Init(int iWidth, int iHeight, int iSpacing, UStaticMesh* iWhiteTileMesh, UStaticMesh* iBlackTileMesh);
-
-    void GenerateTileMeshes();
-
-public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Width;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SizeX;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Height;
+    int SizeY;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int Spacing;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int AssetSize;
 
-    UPROPERTY()
-    UInstancedStaticMeshComponent* WhiteTileInstancedStaticMesh;
-
-    UPROPERTY()
-    UInstancedStaticMeshComponent* BlackTileInstancedStaticMesh;
+	UPROPERTY( EditAnywhere )
+	UInstancedStaticMeshComponent* WhiteTileInstancedMesh;
 
     UPROPERTY(EditAnywhere)
-    UStaticMesh* WhiteTileMesh;
+    UInstancedStaticMeshComponent* BlackTileInstancedMesh;
 
-    UPROPERTY(EditAnywhere)
+	UPROPERTY()
+	UStaticMesh* WhiteTileMesh;
+
+    UPROPERTY()
     UStaticMesh* BlackTileMesh;
 
-    TMap<FIntPoint, AInteractiveTile*> Tiles;
+	TMap<FIntPoint, AInteractiveTile*> Tiles;
 };

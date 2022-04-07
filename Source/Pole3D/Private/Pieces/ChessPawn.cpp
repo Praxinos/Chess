@@ -1,33 +1,35 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "Pieces/ChessPawn.h"
 
 AChessPawn::AChessPawn()
 {
-	ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Pawn"));
-	StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMesh(TEXT("/Game/Meshes/Pawn"));
+    PieceMesh->SetStaticMesh( staticMesh.Object );
 }
 
-TArray<FMove> AChessPawn::GetPiecePossibleMoves()
+TArray<FMove> AChessPawn::GetAvailableMoves()
 {
-	TArray<FMove> possibleMoves;
-	
-	if (bIsWhite)
-	{
-		possibleMoves.Add( FMove( kCantTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint( 0, 1 ), 1 ) );
-		possibleMoves.Add( FMove( kMustTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint( -1, 1 ), 1 ) );
-		possibleMoves.Add( FMove( kMustTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint( 1, 1 ), 1 ) );
-
-		if( bFirstMove )
-			possibleMoves.Add( FMove( kCantTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint( 0, 1 ), 2 ) );
-	}
+    TArray<FMove> moves;
+    if (IsWhite)
+    {
+        moves.Add(FMove(FIntPoint(0, 1), 1, kCantKill, kBlocked, kFixed ));
+        moves.Add(FMove(FIntPoint(1, 1), 1, kMustKill, kBlocked, kFixed ));
+        moves.Add(FMove(FIntPoint(-1, 1), 1, kMustKill, kBlocked, kFixed ));
+        
+        if( IsFirstMove )
+            moves.Add(FMove(FIntPoint(0, 1), 2, kCantKill, kBlocked, kFixed));
+    }
     else
     {
-        possibleMoves.Add(FMove(kCantTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, -1), 1));
-        possibleMoves.Add(FMove(kMustTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(-1, -1), 1));
-        possibleMoves.Add(FMove(kMustTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(1, -1), 1));
+        moves.Add(FMove(FIntPoint(0, -1), 1, kCantKill, kBlocked, kFixed));
+        moves.Add(FMove(FIntPoint(1, -1), 1, kMustKill, kBlocked, kFixed));
+        moves.Add(FMove(FIntPoint(-1, -1), 1, kMustKill, kBlocked, kFixed));
 
-        if (bFirstMove)
-            possibleMoves.Add(FMove(kCantTakePiece, kCanBeTaken, kBlockedByPieces, kFixedLength, FIntPoint(0, -1), 2));
+        if (IsFirstMove)
+            moves.Add(FMove(FIntPoint(0, -1), 2, kCantKill, kBlocked, kFixed));
     }
 
-	return possibleMoves;
+    return moves;
 }

@@ -1,35 +1,41 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+/* ---------------------------------------------------------------------- */
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
 #include "Move.h"
-
 #include "Piece.generated.h"
 
 class AInteractiveTile;
 
 UCLASS(Abstract)
-class APiece : public AActor
+class POLE3D_API APiece : public AActor
 {
     GENERATED_BODY()
 
-public:
+public: 
     APiece();
 
 public:
-    void SetColor(bool iIsWhite);
+    void SetColor( bool iIsWhite );
 
-    void Highlight();
-    void RemoveHighlight();
-    AInteractiveTile* GetTileOfPiece() const;
-    virtual TArray<FMove> GetPiecePossibleMoves();
+    void Select();
+    void Unselect();
+
+    AInteractiveTile* GetTileOfPiece();
+
+    virtual TArray<FMove> GetAvailableMoves();
 
 public:
     UPROPERTY()
-    bool bIsWhite;
+    UStaticMeshComponent* PieceMesh;
 
     UPROPERTY()
-    UStaticMeshComponent* StaticMeshComponent;
+    bool IsWhite;
 
     UPROPERTY()
-    bool bFirstMove = true;
+    bool IsFirstMove;
 };

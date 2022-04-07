@@ -12,5 +12,6 @@ class AChessRook : public APiece
 public:
     AChessRook();
 
-    virtual TArray<FMove> GetPiecePossibleMoves() override;
+    TArray<FMove> GetAvailableMoves() override;
+
 };

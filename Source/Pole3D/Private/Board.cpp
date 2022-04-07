@@ -1,68 +1,57 @@
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Board.h"
-#include "InteractiveTile.h"
 
+// Sets default values
 ABoard::ABoard()
 {
-    USceneComponent* component = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRootComponent"));
-    SetRootComponent(component);
-	RootComponent->bVisualizeComponent = true;
-	RootComponent->Mobility = EComponentMobility::Movable;
+    RootComponent = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
+    RootComponent->bVisualizeComponent = true;
 
-    WhiteTileInstancedStaticMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("WhiteTileInstancedStaticMesh"));
-    BlackTileInstancedStaticMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("BlackTileInstancedStaticMesh"));
-    
-    WhiteTileInstancedStaticMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    BlackTileInstancedStaticMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    WhiteTileInstancedMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("WhiteTileInstancedStaticMesh");
+    BlackTileInstancedMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("BlackTileInstancedStaticMesh");
+
+    WhiteTileInstancedMesh->AttachToComponent( RootComponent, FAttachmentTransformRules::KeepRelativeTransform );
+    BlackTileInstancedMesh->AttachToComponent( RootComponent, FAttachmentTransformRules::KeepRelativeTransform );
 }
 
-void
-ABoard::Init(int iWidth, int iHeight, int iSpacing, UStaticMesh* iWhiteTileMesh, UStaticMesh* iBlackTileMesh)
+void ABoard::Init( int iSizeX, int iSizeY, int iAssetSize, UStaticMesh* iWhiteTileMesh, UStaticMesh* iBlackTileMesh )
 {
-    Width = iWidth;
-    Height = iHeight;
-    Spacing = iSpacing;
+    SizeX = iSizeX;
+    SizeY = iSizeY;
+    AssetSize = iAssetSize;
     WhiteTileMesh = iWhiteTileMesh;
     BlackTileMesh = iBlackTileMesh;
 
-    FTransform transform;
-    transform.SetTranslation( FVector( Spacing / 2 ));
-    RootComponent->AddWorldTransform(transform);
+    WhiteTileInstancedMesh->SetStaticMesh( WhiteTileMesh );
+    BlackTileInstancedMesh->SetStaticMesh( BlackTileMesh );
 
-    WhiteTileInstancedStaticMesh->SetStaticMesh(WhiteTileMesh);
-    BlackTileInstancedStaticMesh->SetStaticMesh(BlackTileMesh);
-
-    GenerateTileMeshes();
+    GenerateBoard();
 }
 
-void
-ABoard::GenerateTileMeshes()
+void ABoard::GenerateBoard()
 {
-    Tiles.Empty();
-    WhiteTileInstancedStaticMesh->ClearInstances();
-    BlackTileInstancedStaticMesh->ClearInstances();
+    WhiteTileInstancedMesh->ClearInstances();
+    BlackTileInstancedMesh->ClearInstances();
 
-    UMaterialInterface* material = LoadObject<UMaterialInterface>(this, TEXT("/Game/Materials/TransparentMaterial"));
-
-    for(int y = 0; y < Height; y++)
+    for( int y = 0; y < SizeY; y++ )
     {
-        for(int x = 0; x < Width; x++)
+        for (int x = 0; x < SizeX; x++)
         {
             FTransform transform;
-            transform.SetTranslation(FVector(x * Spacing, y * Spacing, -Spacing / 2));
+            transform.SetTranslation( FVector( x * AssetSize, y * AssetSize, 0 ) );
 
-            if ( x % 2 == y % 2 )
+            if ((x + y) % 2 == 0)
             {
-                WhiteTileInstancedStaticMesh->AddInstance(transform);
+                WhiteTileInstancedMesh->AddInstance(transform);
             }
             else
             {
-                BlackTileInstancedStaticMesh->AddInstance(transform);
+                BlackTileInstancedMesh->AddInstance(transform);
             }
-
-            Tiles.Add( FIntPoint(x, y), GetWorld()->SpawnActor<AInteractiveTile>(FVector(x * Spacing, y * Spacing, 1), FRotator(0, 0, 0)) );
-            Tiles[FIntPoint(x,y)]->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-            Tiles[FIntPoint(x,y)]->StaticMeshComponent->SetMaterial(0, material);
+            transform.AddToTranslation( FVector( 0, 0, AssetSize / 2 + 1 ));
+            Tiles.Add( FIntPoint(x,y), GetWorld()->SpawnActor<AInteractiveTile>( AInteractiveTile::StaticClass(), transform ));
         }
     }
 }
+

@@ -1,49 +1,43 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
 
-enum ETakeCondition
+enum EKillCondition
 {
-    kCanTakePiece,
-    kCantTakePiece,
-    kMustTakePiece
-};
-
-enum ETakenCondition
-{
-    kCantBeTaken,
-    kCanBeTaken
+    kCanKill,
+    kCantKill,
+    kMustKill
 };
 
 enum EMoveCondition
 {
-    kJumpOverPieces,
-    kBlockedByPieces
+    kJump,
+    kBlocked
 };
 
-enum EMoveLengthCondition
+enum EExtendMove
 {
-    kFixedLength,
-    kEqualOrUnderLength
+    kFixed,
+    kExtend
 };
+
 
 struct FMove
 {
-    FMove(ETakeCondition iTakeCondition, ETakenCondition iTakenCondition, EMoveCondition iMoveCondition, EMoveLengthCondition iMoveLengthCondition, FIntPoint iMoveDirection, uint32 iMoveLength)
-    : TakeCondition( iTakeCondition ),
-      TakenCondition( iTakenCondition ),
-      MoveCondition( iMoveCondition ),
-      MoveLengthCondition( iMoveLengthCondition ),
-      MoveUnitVector( iMoveDirection ),
-      MoveLength( iMoveLength )
+    FMove(FIntPoint iMoveVector, int iLength, EKillCondition iKillCondition, EMoveCondition iMoveCondition, EExtendMove iExtendMove)
     {
+        MoveVector = iMoveVector;
+        Length = iLength;
+        KillCondition = iKillCondition;
+        MoveCondition = iMoveCondition;
+        ExtendMove = iExtendMove;
     }
 
-    ETakeCondition TakeCondition;
-    ETakenCondition TakenCondition;
+    FIntPoint MoveVector;
+    int Length;
+    EKillCondition KillCondition;
     EMoveCondition MoveCondition;
-    EMoveLengthCondition MoveLengthCondition;
-
-    FIntPoint MoveUnitVector;
-    uint32 MoveLength;
+    EExtendMove ExtendMove;
 };

@@ -2,19 +2,18 @@
 
 AChessBishop::AChessBishop()
 {
-	ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Bishop"));
-	StaticMeshComponent->SetStaticMesh(staticMeshFinder.Object);
+    ConstructorHelpers::FObjectFinder<UStaticMesh> staticMeshFinder(TEXT("/Game/Meshes/Bishop"));
+    PieceMesh->SetStaticMesh(staticMeshFinder.Object);
 }
 
-TArray<FMove> AChessBishop::GetPiecePossibleMoves()
+TArray<FMove> AChessBishop::GetAvailableMoves()
 {
-    TArray<FMove> possibleMoves;
+    TArray<FMove> moves;
 
-    //TODO: Change 8 by size of Board
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(1, 1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(1, -1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(-1, 1), 8));
-    possibleMoves.Add(FMove(kCanTakePiece, kCanBeTaken, kBlockedByPieces, kEqualOrUnderLength, FIntPoint(-1, -1), 8));
+    moves.Add(FMove(FIntPoint(1, 1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(1, -1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(-1, 1), 0, kCanKill, kBlocked, kExtend));
+    moves.Add(FMove(FIntPoint(-1, -1), 0, kCanKill, kBlocked, kExtend));
 
-    return possibleMoves;
+    return moves;
 }

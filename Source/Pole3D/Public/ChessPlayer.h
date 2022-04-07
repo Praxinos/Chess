@@ -1,24 +1,27 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Pawn.h"
 #include "Camera/CameraComponent.h"
-
 #include "ChessPlayer.generated.h"
 
-class AChessController;
-
 UCLASS()
-class AChessPlayer : public APawn
+class POLE3D_API AChessPlayer : public APawn
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    AChessPlayer();
+	// Sets default values for this pawn's properties
+	AChessPlayer();
+
+    void Init(bool iIsWhite, int iSizeX, int iSizeY, int iAssetSize );
 
 public:
-    UPROPERTY()
-    bool bIsWhite;
+	UPROPERTY()
+	UCameraComponent* Camera;
 
-    UPROPERTY()
-    UCameraComponent* Camera;
+	UPROPERTY()
+	bool IsWhite;
 };
